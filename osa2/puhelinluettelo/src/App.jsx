@@ -1,34 +1,64 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import personService from './services/persons'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ])
+  const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [nameFilter, setFilter] = useState('')
 
-
+  useEffect(() => {
+    personService.getAll()
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response)
+      })
+  }, [])
 
   const handleAddEntry = (event) => {
     event.preventDefault()
-    if (persons.some(person => person.name.trim() === newName)) {
-      return (alert(`${newName} is already added to phonebook`))
-    }
-    const personObject = {
-      name: newName,
-      number: newNumber
-    }
-    setPersons(persons.concat(personObject))
-    setNewName('')
-    setNewNumber('')
+      const person = persons.find(p => p.name === newName)
 
+    if (persons.some(person => person.name.trim() === newName)) {
+      if(confirm(`${newName} is already added to phonebook. Shall I update the number?`)) {
+        const updatedPerson = {...person, number: newNumber}
+        personService.update(person.id, updatedPerson)
+        .then(response => {
+          console.log("response", response)
+          setPersons(persons.map(p => p.id !== person.id ? p : response))
+          setNewName('')
+          setNewNumber('')
+        })
+        return
+      }
+      return (alert(`${newName} is already added to phonebook`))
+    } else {
+      const personObject = {
+        name: newName,
+        number: newNumber
+      }
+        personService.create(personObject)
+        .then(response => {
+                console.log(response)    
+                setPersons(persons.concat(response))
+                setNewName('')
+                setNewNumber('')
+              })
+    }
+
+  }
+
+  const handleRemoveEntry = (personId) => {
+    if(window.confirm("Do you want to remove this entry?")) {
+      personService.remove(personId)
+      .then(response => {
+              console.log(response)
+              setPersons(persons.filter(p => p.id !== personId))
+            })
+          }
   }
 
   const handleNameChange = (event) => {
@@ -52,7 +82,7 @@ const App = () => {
       <h2>add a new</h2>
       <PersonForm newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} handleAddEntry={handleAddEntry} />
       <h2>Numbers</h2>
-      <Persons persons={persons} nameFilter={nameFilter} />
+      <Persons persons={persons} nameFilter={nameFilter} removeHandler={handleRemoveEntry}/>
     </div>
   )
 
