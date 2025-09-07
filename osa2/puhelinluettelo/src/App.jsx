@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import Notification from './components/Notification'
 import personService from './services/persons'
 
 const App = () => {
@@ -9,6 +10,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [nameFilter, setFilter] = useState('')
+  const [infomessage, setInfoMessage] = useState(null)
+  const [notificationStyle, setStyle] = useState(null)
 
   useEffect(() => {
     personService.getAll()
@@ -27,10 +30,12 @@ const App = () => {
         const updatedPerson = {...person, number: newNumber}
         personService.update(person.id, updatedPerson)
         .then(response => {
-          console.log("response", response)
           setPersons(persons.map(p => p.id !== person.id ? p : response))
           setNewName('')
           setNewNumber('')
+          setStyle('info')
+          setInfoMessage(`Entry '${person.name}' phonenumber was updated to server`)
+          setTimeout(() => {setInfoMessage(null)}, 15000)
         })
         return
       }
@@ -46,6 +51,9 @@ const App = () => {
                 setPersons(persons.concat(response))
                 setNewName('')
                 setNewNumber('')
+                setStyle('info')
+                setInfoMessage(`Entry '${response.name}' was added to server`)        
+                setTimeout(() => {setInfoMessage(null)}, 5000)
               })
     }
 
@@ -55,10 +63,19 @@ const App = () => {
     if(window.confirm("Do you want to remove this entry?")) {
       personService.remove(personId)
       .then(response => {
-              console.log(response)
               setPersons(persons.filter(p => p.id !== personId))
+              setStyle('info')
+              setInfoMessage(`Entry '${response.name}' was removed from the server`)        
+              setTimeout(() => {setInfoMessage(null)}, 5000)
             })
-          }
+      .catch(error => {
+        console.log(error)
+        setStyle('error')
+        setInfoMessage(`Entry was already removed from server`)        
+        setTimeout(() => {setInfoMessage(null)}, 5000)
+        setPersons(persons.filter(p => p.id !== personId))
+        })
+    }
   }
 
   const handleNameChange = (event) => {
@@ -78,6 +95,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={infomessage} notificationStyle={notificationStyle} />
       <Filter nameFilter={nameFilter} handleFilterChange={handleFilterChange} />
       <h2>add a new</h2>
       <PersonForm newName={newName} handleNameChange={handleNameChange} newNumber={newNumber} handleNumberChange={handleNumberChange} handleAddEntry={handleAddEntry} />
