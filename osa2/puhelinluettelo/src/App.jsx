@@ -63,9 +63,9 @@ const App = () => {
     if(window.confirm("Do you want to remove this entry?")) {
       personService.remove(personId)
       .then(response => {
+              setInfoMessage(`Entry '${persons.find(p => p.id === personId).name}' was removed from the server`)        
               setPersons(persons.filter(p => p.id !== personId))
               setStyle('info')
-              setInfoMessage(`Entry '${response.name}' was removed from the server`)        
               setTimeout(() => {setInfoMessage(null)}, 5000)
             })
       .catch(error => {
