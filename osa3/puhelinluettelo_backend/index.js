@@ -1,5 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const mongoose = require('mongoose')
+const Person = require('./models/person')
+
 const app = express()
 
 
@@ -18,6 +22,8 @@ app.use(morgan('tiny', {
 
 app.use(express.static('dist'))
 app.use(express.json())
+
+
 
   let persons = [
     {
@@ -48,8 +54,9 @@ app.get('/', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
-})
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })})
 
 app.get('/info', (request, response) => {
     const date = new Date()
@@ -75,26 +82,22 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons', (request, response) => {  
-    const person = request.body  
-    const newId = persons.length > 0 ? (Math.floor(Math.random()*1000000) ): 0
+    const body = request.body  
 
-    if (!checkPayload(person)) {
+    if (!checkPayload(body)) {
       return response.status(400).json({ 
         error: 'content missing' 
       })
     }
 
-    if(persons.find(existing => 
-      existing.name.toLowerCase() === person.name.toLowerCase())) {
-      return response.status(409).json({ 
-        error: 'Duplicate name' 
-      })
-    }
-    
-    person.id = String(newId)
+  const person = new Person({
+    name: body.name,
+    number: body.number,
+  })
 
-    persons = persons.concat(person)
-    response.json(person)
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
 })
 
 const checkPayload = (person) => {
@@ -108,7 +111,7 @@ const checkPayload = (person) => {
 }
 
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
