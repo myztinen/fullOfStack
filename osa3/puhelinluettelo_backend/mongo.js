@@ -21,27 +21,27 @@ const entrySchema = new mongoose.Schema({
 })
 
 const Person = mongoose.model('entry', entrySchema)
-if (process.argv.length == 5) {
-    const name = process.argv[3]
-    const phoneNumber = process.argv[4]
+if (process.argv.length === 5) {
+  const name = process.argv[3]
+  const phoneNumber = process.argv[4]
 
 
 
-    const person = new Person({
-        name: name,
-        number: phoneNumber,
-    })
+  const person = new Person({
+    name: name,
+    number: phoneNumber,
+  })
 
-    person.save().then(result => {
+  person.save().then(() => {
     console.log(`added ${name} number ${phoneNumber}to phonebook`)
     mongoose.connection.close()
-    })
+  })
 } else {
-    console.log('Phonebook:')
-    Person.find({}).then(result => {
-        result.forEach(person => {
-            console.log(person.name, ' ', person.number)
-        })  
-    mongoose.connection.close()
+  console.log('Phonebook:')
+  Person.find({}).then(result => {
+    result.forEach(person => {
+      console.log(person.name, ' ', person.number)
     })
+    mongoose.connection.close()
+  })
 }

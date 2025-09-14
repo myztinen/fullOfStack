@@ -1,7 +1,6 @@
 require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
-const mongoose = require('mongoose')
 const Person = require('./models/person')
 
 const app = express()
@@ -13,11 +12,11 @@ morgan.token('body', (req) => {
 morgan.format('POST', ':method :url :status :res[content-length] - :response-time ms :body')
 
 app.use(morgan('POST', {
-  skip: (req, res) => req.method !== 'POST'
+  skip: (req) => req.method !== 'POST'
 }))
 
 app.use(morgan('tiny', {
-  skip: (req, res) => req.method === 'POST'
+  skip: (req) => req.method === 'POST'
 }))
 
 const unknownEndpoint = (request, response) => {
@@ -29,7 +28,7 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } else if (error.name === 'ValidationError') {    
+  } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
   }
   next(error)
@@ -48,11 +47,11 @@ app.get('/api/persons', (request, response) => {
   })})
 
 app.get('/info', (request, response) => {
-    const date = new Date()
-    Person.countDocuments({}).then(count => {
-      console.log(count)
-      response.send(`<div>Phonebook has info for ${count} people</div><div>${date}</div>`)
-     })
+  const date = new Date()
+  Person.countDocuments({}).then(count => {
+    console.log(count)
+    response.send(`<div>Phonebook has info for ${count} people</div><div>${date}</div>`)
+  })
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -69,14 +68,14 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const {name, number} = request.body
+  const { name, number } = request.body
 
   Person.findById(request.params.id)
     .then(person => {
@@ -93,8 +92,8 @@ app.put('/api/persons/:id', (request, response, next) => {
     })
     .catch(error => next(error))})
 
-app.post('/api/persons', (request, response, next) => {  
-    const body = request.body  
+app.post('/api/persons', (request, response, next) => {
+  const body = request.body
 
 
   const person = new Person({
@@ -106,16 +105,6 @@ app.post('/api/persons', (request, response, next) => {
     response.json(savedPerson)
   }).catch(error => next(error))
 })
-
-const checkPayload = (person) => {
-  if(!person.name || !person.number) return false
-
-  if(person.name === null || person.name === '') return false
-
-  if(person.number === null || person.number === '') return false
-
-  return true
-}
 
 app.use(unknownEndpoint)
 app.use(errorHandler)
