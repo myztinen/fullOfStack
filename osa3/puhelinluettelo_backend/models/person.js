@@ -16,9 +16,21 @@ mongoose.connect(url)
 
 
 const entrySchema = new mongoose.Schema({
-  name: String,
-  number: String,
-
+  name:{
+    type: String,
+    minlength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    required: true,
+    minlength: 8, 
+    validate: {
+      validator: (v) => /^\d{2,3}-\d+$/.test(v),
+      message: (props) =>
+        `Number ${props.value} is invalid. Use correct type e.g. 12-12312123 or 123-123123123`
+    }
+  }
 })
 
 entrySchema.set('toJSON', {
@@ -28,7 +40,5 @@ entrySchema.set('toJSON', {
     delete returnedObject.__v
   }
 })
-
-
 
 module.exports = mongoose.model('entry', entrySchema)

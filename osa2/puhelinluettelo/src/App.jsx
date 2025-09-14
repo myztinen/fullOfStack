@@ -36,6 +36,11 @@ const App = () => {
           setStyle('info')
           setInfoMessage(`Entry '${person.name}' phonenumber was updated to server`)
           setTimeout(() => {setInfoMessage(null)}, 15000)
+        }).catch(error => {
+                  console.log(error.response.data)    
+                  setStyle('error')
+                  setInfoMessage(error.response.data.error)        
+                  setTimeout(() => {setInfoMessage(null)}, 5000)
         })
         return
       }
@@ -54,6 +59,11 @@ const App = () => {
                 setStyle('info')
                 setInfoMessage(`Entry '${response.name}' was added to server`)        
                 setTimeout(() => {setInfoMessage(null)}, 5000)
+              }).catch(error => {
+                  console.log(error.response.data)    
+                  setStyle('error')
+                  setInfoMessage(error.response.data.error)        
+                  setTimeout(() => {setInfoMessage(null)}, 5000)
               })
     }
 
@@ -103,7 +113,6 @@ const App = () => {
       <Persons persons={persons} nameFilter={nameFilter} removeHandler={handleRemoveEntry}/>
     </div>
   )
-
 }
 
 export default App
