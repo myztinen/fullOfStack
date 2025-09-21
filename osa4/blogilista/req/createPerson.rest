@@ -2,8 +2,8 @@ POST http://localhost:3003/api/blogs
 Content-type: application/json
 
 {
-    "title": "Kansantalous",
-    "author": "Chydenius",
+    "title": "Tiitiaisen satupuu",
+    "author": "Teppo Tiitiainen",
     "url": "http://wwww.example.com",
-    "likes": 8
+    "likes": 5
 }
