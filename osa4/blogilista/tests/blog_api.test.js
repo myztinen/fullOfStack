@@ -56,12 +56,12 @@ describe('When posting a new entry', () => {
 
     const response = await helper.blogsInDb()
 
-    const titles = response.body.map(r => r.title)
-    const authors = response.body.map(r => r.author)
-    const urls = response.body.map(r => r.url)
-    const likes = response.body.map(r => r.likes)
+    const titles = response.map(r => r.title)
+    const authors = response.map(r => r.author)
+    const urls = response.map(r => r.url)
+    const likes = response.map(r => r.likes)
 
-    assert.strictEqual(response.body.length, helper.initialBlogs.length + 1)
+    assert.strictEqual(response.length, helper.initialBlogs.length + 1)
     assert(titles.includes('Tiitiaisen satupuu'))
     assert(authors.includes('Teppo Tiitiainen'))
     assert(urls.includes('http://wwww.testi.com'))
@@ -81,9 +81,9 @@ describe('When posting a new entry', () => {
       .expect('Content-Type', /application\/json/)
     const response = await helper.blogsInDb()
 
-    const likes = response.body.map(r => r.likes)
+    const likes = response.map(r => r.likes)
 
-    assert.strictEqual(response.body.length, helper.initialBlogs.length + 1)
+    assert.strictEqual(response.length, helper.initialBlogs.length + 1)
     assert(likes.includes(0))
   })
 
@@ -125,7 +125,7 @@ describe('deletion of a blog', () => {
 })
 
 describe('Updating of a blog', () => {
-  test.only('succeeds with status code 204 if id is valid', async () => {
+  test('succeeds with status code 204 if id is valid', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToUpdate = {...blogsAtStart[0], likes: 100}
 
