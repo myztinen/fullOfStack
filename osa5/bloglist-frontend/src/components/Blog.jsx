@@ -1,6 +1,7 @@
 import { useState } from 'react'
-const Blog = ({ blog, updateBlog, deleteBlog, userId }) => {
+const Blog = ({ blog, updateBlog, deleteBlog, username }) => {
   const [infoHidden, setVisibility] = useState(true)
+
 
   const blogStyle = {
     paddingTop: 10,
@@ -12,6 +13,8 @@ const Blog = ({ blog, updateBlog, deleteBlog, userId }) => {
 
   const showInfo = () => {
     setVisibility(true)
+
+
   }
 
   const hideInfo = () => {
@@ -28,31 +31,30 @@ const Blog = ({ blog, updateBlog, deleteBlog, userId }) => {
       likes: blog.likes+1,
     })
   }
-  const buttonStyle = { display: blog.user?.id === userId? 'none' : '' }
+  const buttonStyle = { display: blog.user?.username === username ? '' : 'none' }
 
   const blogDeleter = async event => {
     if(window.confirm('Do you want to remove this entry?')) {
       event.preventDefault()
-      console.log(blog.id)
       deleteBlog(blog.id)
     }
   }
 
   if(infoHidden) {
     return (
-      <div style={blogStyle}>
+      <div className='closedBlogItem' style={blogStyle}>
         {blog.title} {blog.author}
         <button onClick={hideInfo}>view</button>
       </div>
     )
   } else {
     return (
-      <div style={blogStyle}>
-        {blog.title} {blog.author}
-        <button onClick={showInfo}>hide</button><br/>
-      likes {blog.likes} <button onClick={likeUpdater}>like</button><br/>
-        {blog.user?.name ?? 'unknown user'} <br/>
-        <button style={buttonStyle} onClick={blogDeleter}>remove</button><br/>
+      <div className='openBlogItem' style={blogStyle}>
+        <div className='title'>{blog.title} {blog.author}<button onClick={showInfo}>hide</button><br/></div>
+        <div>{blog.url} <br/></div>
+        <div className='likes'>likes {blog.likes} <button onClick={likeUpdater}>like</button><br/></div>
+        <div>{blog.user?.name ?? 'unknown user'} <br/></div>
+        <div><button style={buttonStyle} onClick={blogDeleter}>remove</button></div>
       </div>
     )
   }

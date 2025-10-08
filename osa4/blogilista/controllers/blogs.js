@@ -11,7 +11,6 @@ blogsRouter.get('/blogs', async (request, response) => {
 
 blogsRouter.post('/blogs', middleware.userExtractor, async (request, response) => {
   let requestWithDefault = request.body.likes ? request.body : { ...request.body, likes: 0 }
-
   const user = await User.findById(request.user)
 
   if(!requestWithDefault.title || !requestWithDefault.url) {

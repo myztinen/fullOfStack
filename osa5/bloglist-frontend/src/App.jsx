@@ -37,6 +37,7 @@ const App = () => {
     try {
       const user = await loginService.login({ username, password })
       window.localStorage.setItem('loggedAppUser', JSON.stringify(user))
+      blogService.setToken(user.token)
       setUser(user)
       setUsername('')
       setPassword('')
@@ -115,7 +116,6 @@ const App = () => {
       <BlogForm createBlog={addBlog}/>
     </Togglable>
   )
-
   return (
     <div>
       {!user && (<div><Notification message={infomessage} notificationStyle={notificationStyle} />
@@ -125,7 +125,7 @@ const App = () => {
         <Notification message={infomessage} notificationStyle={notificationStyle} />
         <div>{user.name} logged in<button onClick={handleLogoutClick}>logout</button></div><br></br>
         {newBlogForm()}
-        {blogs.sort((a,b) => a.likes < b.likes).map(blog => <Blog key={blog.id} blog={blog} updateBlog={likeUpdater} deleteBlog={blogDeleter} userId={user.id}/>)}
+        <div className='blogsList'>{blogs.sort((a,b) => -(a.likes - b.likes)).map(blog => <Blog key={blog.id} blog={blog} updateBlog={likeUpdater} deleteBlog={blogDeleter} username={user.username}/>)}</div>
       </div>)}
     </div>
   )
