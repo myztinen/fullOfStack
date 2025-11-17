@@ -10,10 +10,20 @@ const NewBook = () => {
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
-  const [ createBook ] = useMutation(CREATE_BOOK,{ 
-    refetchQueries: [ { query: ALL_BOOKS },
-                      { query: ALL_AUTHORS } 
-     ]})
+const [createBook] = useMutation(CREATE_BOOK, {
+  update: (cache, { data: { addBook } }) => {
+    cache.updateQuery({ query: ALL_BOOKS, variables: { genre: '' } }, data => {
+      if (!data) return { allBooks: [addBook] }
+      if (data.allBooks.some(b => b.id === addBook.id)) return data
+      return {allBooks: data.allBooks.concat(addBook)}
+    })
+    cache.updateQuery({ query: ALL_AUTHORS }, data => {
+      if (!data) return null
+      const exists = data.allAuthors.some(a => a.name === addBook.author.name)
+      return exists ? data : {allAuthors: data.allAuthors.concat(addBook.author)}
+    })
+  }
+})
 
   const submit = async (event) => {
     event.preventDefault()
