@@ -18,6 +18,7 @@ const toNewPatient = (object: unknown): NewPatient => {
       ssn: z.string().parse(object.ssn),
       gender: z.enum(Gender).parse(object.gender),
       occupation: z.string().parse(object.occupation),
+      entries:[]
     };
     return newPatient;
   }
